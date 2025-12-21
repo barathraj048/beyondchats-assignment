@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Header from "./header";
 
 interface Article {
   id: number;
@@ -17,16 +18,11 @@ function App() {
   }, []);
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Articles</h1>
-
-      {articles.map(article => (
-        <div key={article.id} style={{ marginBottom: 20 }}>
-          <h2>{article.title}</h2>
-          <p>{article.content}</p>
-          <small>Source: {article.source}</small>
-        </div>
-      ))}
+    <div className="w-screen">
+      <Header/>
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        <h2 className="text-xl font-semibold mb-4">Articles list</h2>
+      </main>
     </div>
   );
 }
