@@ -26,5 +26,19 @@ public function store(Request $request)
     return Article::create($data);
 }
 
+public function updateContent(Request $request, $id)
+{
+    Log::info('Enhance request hit', [
+        'id' => $id,
+        'payload' => $request->all(),
+    ]);
+
+    $article = Article::findOrFail($id);
+
+    $article->updated_content = $request->input('updated_content');
+    $article->save();
+
+    return response()->json(['ok' => true]);
+}
 
 }

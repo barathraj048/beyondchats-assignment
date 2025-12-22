@@ -1,30 +1,23 @@
 import { useEffect, useState } from "react";
-import Header from "./header";
+import { fetchArticles } from "./api";
+import ArticleList from "./components/ArticleList";
+import ArticleViewer from "./components/ArticleViewer";
+import {type Article} from "./types";
 
-interface Article {
-  id: number;
-  title: string;
-  content: string;
-  source: string;
-}
 
-function App() {
+
+export default function App() {
   const [articles, setArticles] = useState<Article[]>([]);
+  const [selected, setSelected] = useState<Article | null>(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/articles")
-      .then(res => res.json())
-      .then(data => setArticles(data));
+    fetchArticles().then(setArticles);
   }, []);
 
   return (
-    <div className="w-screen">
-      <Header/>
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <h2 className="text-xl font-semibold mb-4">Articles list</h2>
-      </main>
+    <div className="flex h-screen">
+      <ArticleList articles={articles} onSelect={setSelected} />
+      <ArticleViewer article={selected} />
     </div>
   );
 }
-
-export default App;
