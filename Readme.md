@@ -1,70 +1,127 @@
-BeyondChats Assignment
-A full-stack application that scrapes blog articles, enhances them using AI, and displays them in a clean interface.
-What it does
-The app scrapes articles from the BeyondChats blog, runs them through an AI enhancement pipeline, and lets you view both versions side-by-side. I built it with separate services because that's how I'd actually build this in production.
-How it works
-Scraper (Node.js) → Backend API (Laravel) → Database (SQLite) ← Frontend (React)
-The scraper pulls articles and sends them to the backend. The AI pipeline grabs unprocessed articles, enhances them, and updates the database. The frontend just reads from the API and shows everything.
-Tech used
+# BeyondChats Assignment
 
-Laravel for the backend API
-React + TypeScript for the frontend
-Node.js for scraping and AI processing
-SQLite because it's simple and works
-Tailwind for styling
+![Architecture](readmeassert/architecture.png)
 
-Running it locally
-Backend:
-bashcd backend
+Full-stack app that scrapes blog articles, enhances them with AI, and shows both versions in a clean interface.
+
+## What it does
+
+Scrapes articles from BeyondChats blog, runs them through an AI enhancement pipeline, and lets you compare the original vs enhanced content. Built with separate services because that's how you'd do it in production.
+
+## System architecture
+
+```
+Scraper (Node.js) → Backend API (Laravel) → SQLite Database
+                                      ↑
+                                AI Enhancer (Node.js)
+                                      ↑
+                              Frontend (React)
+```
+
+The scraper pulls articles and sends them to the backend. AI pipeline grabs unprocessed articles, enhances them, and updates the database. Frontend just reads from the API and displays everything.
+
+## Tech stack
+
+- Laravel - backend API and persistence
+- React + TypeScript - frontend
+- Node.js - scraping and AI processing
+- SQLite - database (simple enough for this)
+- Tailwind CSS - styling
+
+## Running locally
+
+**Backend:**
+```bash
+cd backend
 composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
 php artisan serve
-Runs on http://127.0.0.1:8000
-Scraper:
-bashcd scraper
+```
+Runs at `http://127.0.0.1:8000`
+
+**Scraper:**
+```bash
+cd scraper
 npm install
 node scraper.js
-This pulls the latest articles and saves them.
-AI Pipeline:
-bashnode aiEnhancer.js
-Enhances all articles that haven't been processed yet. Right now it's using mock AI logic but the structure is there to plug in GPT or DeepSeek.
-Frontend:
-bashcd frontend
+```
+Pulls the latest 5 articles and saves them with full HTML content.
+
+**AI Pipeline:**
+```bash
+node aiEnhancer.js
+```
+Enhances all articles without `updated_content`. Using mock AI right now but the structure is ready for DeepSeek or GPT.
+
+**Frontend:**
+```bash
+cd frontend
 npm install
 npm run dev
-Runs on http://localhost:5173
-Project structure
+```
+Runs at `http://localhost:5173`
+
+## Project structure
+
+```
 .
-├── backend/        # Laravel API
-├── scraper/        # Node.js scraper + AI pipeline
-├── frontend/       # React app
+├── backend/           # Laravel API
+├── scraper/          # Node.js scraper + AI enhancer
+├── frontend/         # React app
+├── readmeassert/
+│   └── architecture.png
 └── README.md
-API endpoints
+```
 
-GET /api/articles - get all articles
-POST /api/articles - create article (scraper uses this)
-PUT /api/articles/{id} - update enhanced content
+## API endpoints
 
-Database schema
-Articles table:
+- `GET /api/articles` - get all articles
+- `POST /api/articles` - create article (scraper uses this)
+- `PUT /api/articles/{id}/enhance` - update enhanced content
+- `GET /api/articles/count` - count scraped articles
+- `GET /api/articles/exists?title=...` - check for duplicates
 
-id
-title
-content (original)
-updated_content (AI-enhanced)
-source
-timestamps
+## Database schema
 
-Why I built it this way
-I separated the scraper and AI pipeline from the backend because in real projects you don't want heavy processing blocking your API. The scraper can run independently, fail independently, and scale independently.
-I used Laravel because it handles database stuff cleanly and the API layer is straightforward. React for the frontend because it's what I know best and works well for this kind of data display.
-SQLite keeps things simple for development. In production I'd probably use PostgreSQL.
-What's next
+**articles table:**
+- id
+- title
+- content (original HTML)
+- updated_content (AI-enhanced HTML)
+- source
+- timestamps
 
-Hook up real AI (DeepSeek or GPT)
-Add proper error handling and logging
-Deploy it somewhere
-Maybe add article versioning
-Better content parsing (the scraper is pretty basic right now)
+## Design decisions
+
+**Separate scraper and AI pipeline**  
+Heavy processing shouldn't block your API. These can fail, scale, and deploy independently.
+
+**HTML content storage**  
+Keeps headings, lists, and formatting intact. Better for display and AI processing.
+
+**Laravel backend**  
+Clean migrations, validation, and API structure out of the box.
+
+**React frontend**  
+Good for data display, easy to extend.
+
+**SQLite for now**  
+Keeps development simple. Would use PostgreSQL in production.
+
+## What's left to do
+
+- Hook up real AI (DeepSeek or GPT)
+- Add proper retry logic and error handling
+- Deploy it somewhere
+- Maybe add article versioning
+- Better content parsing
+
+## Notes
+
+The assignment said partial completion was fine, so I focused on getting the core architecture right and making sure everything works end-to-end. The AI enhancement is currently mocked but the pipeline is ready to plug in a real model.
+
+---
+
+Built by Bharath
