@@ -110,13 +110,25 @@ Good for data display, easy to extend.
 **SQLite for now**  
 Keeps development simple. Would use PostgreSQL in production.
 
-## What's left to do
+## Future Enhancements (Intentionally Scoped Out)
 
-- Hook up real AI (DeepSeek or GPT)
-- Add proper retry logic and error handling
-- Deploy it somewhere
-- Maybe add article versioning
-- Better content parsing
+The following enhancements were deliberately kept out of scope for this assignment to maintain focus on system design, data flow, and reliability within the given time constraints. The current architecture fully supports adding these features with minimal changes.
+
+- **LLM Integration (DeepSeek / GPT / Claude)**  
+  The AI enhancement pipeline is intentionally LLM-agnostic. A mock enhancer is used to demonstrate the full workflow. Replacing it with a real LLM requires only swapping the enhancement function and providing API credentials.
+
+- **Retry & Fault Tolerance**  
+  Production-grade retry logic (exponential backoff, partial failures, dead-letter handling) can be added to the Node.js pipeline for large-scale scraping and enhancement jobs.
+
+- **Deployment & Scheduling**  
+  The system is designed to be deployable as independent services (Laravel API, Node worker, React frontend). A cron job or queue worker (BullMQ / Laravel Queues) can be added to automate enhancements.
+
+- **Article Versioning**  
+  Currently, each article stores one enhanced version. This can be extended to support multiple enhancement versions with a separate versions table.
+
+- **Improved Content Extraction**  
+  Content parsing currently prioritizes reliability over perfection. A DOM-aware parser or readability-based extraction can be added for cleaner article bodies.
+
 
 ## Notes
 
