@@ -1,0 +1,33 @@
+# backend/Dockerfile
+FROM php:8.3-apache
+
+# System deps for composer + extensions
+RUN apt-get update && apt-get install -y \
+    git zip unzip libzip-dev libpng-dev libonig-dev libxml2-dev \
+ && docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd sockets \
+ && a2enmod rewrite
+
+# Install composer (copy from official image)
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Copy composer files & install first (cache layers)
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+# Copy rest of app
+COPY . .
+
+# Run npm build if you compile assets here (optional)
+# RUN cd frontend && npm ci && npm run build
+
+# Permissions
+RUN chown -R www-data:www-data storage bootstrap/cache \
+ && chmod -R 755 storage bootstrap/cache
+
+# Expose and default cmd
+EXPOSE 80
+
+# Use apache default command (runs in foreground)
+CMD ["apache2-foreground"]
