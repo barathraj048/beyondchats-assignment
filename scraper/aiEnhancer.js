@@ -1,41 +1,40 @@
 import axios from "axios";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_URL = "http://127.0.0.1:8000/api/articles";
 
-async function run() {
-  console.log("🚀 Phase 2 started");
+async function enhanceAllArticles() {
+  console.log("🚀 Starting AI enhancement pipeline");
 
-  // 1. Fetch all articles
-  const res = await axios.get(`${API_BASE}/articles`);
+  const res = await axios.get(API_URL);
   const articles = res.data;
 
-  if (!articles.length) {
-    console.log("❌ No articles found");
-    return;
+const pending = articles.filter(
+  a => !a.updated_content && a.source === "original"
+);
+
+  console.log(`🔍 Found ${pending.length} articles to enhance`);
+
+  for (const article of pending) {
+    console.log(`🧠 Enhancing: ${article.title}`);
+
+    // MOCK enhancement (replace with DeepSeek later)
+    const enhancedContent = `
+### Enhanced Version
+
+${article.content}
+
+---
+
+This article has been rewritten and enhanced for clarity, structure, and SEO.
+    `.trim();
+
+      await axios.put(`${API_URL}/${article.id}/enhance`, {
+        updated_content: enhancedContent,
+      });
+    console.log(`✅ Updated: ${article.title}`);
   }
 
-  // 2. Pick latest article
-  const article = articles[articles.length - 1];
-  console.log("📝 Using article:", article.title);
-
-  // 3. Fake AI enhanced content (TEMP)
-  const enhancedContent = `
-  ${article.title}
-
-  This is an AI-enhanced version of the article.
-  The original content has been improved for clarity,
-  structure, and readability.
-
-  ${article.content.substring(0, 500)}...
-  `;
-
-  // 4. Save enhanced content
-  await axios.post(
-    `${API_BASE}/articles/${article.id}/enhance`,
-    { updated_content: enhancedContent }
-  );
-
-  console.log("✅ Enhanced content saved");
+  console.log("🎉 All articles enhanced");
 }
 
-run();
+enhanceAllArticles();
