@@ -405,8 +405,8 @@ Open: https://beyondchats-assignment-q4n2cmcs5-barathraj048s-projects.vercel.app
 Full-stack engineer focused on production-grade systems, clean architecture, and end-to-end ownership.
 
 - 💼 GitHub: [@barathraj048](https://github.com/barathraj048)
-- 🔗 LinkedIn: [Connect with me](https://linkedin.com/in/yourprofile)
-- 📧 Email: your.email@example.com
+- 🔗 LinkedIn: [Connect with me]([https://linkedin.com/in/yourprofile](https://www.linkedin.com/in/bharath-raj-7992a7248/))
+- 📧 Email: barathraj048@gmail.com
 
 ---
 
