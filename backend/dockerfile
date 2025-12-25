@@ -1,48 +1,56 @@
 FROM php:8.3-apache
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git zip unzip libzip-dev libpng-dev libonig-dev libxml2-dev \
-    && docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd sockets \
-    && a2enmod rewrite
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    unzip \
+    sqlite3 \
+    libsqlite3-dev \
+    && docker-php-ext-install pdo pdo_sqlite \
+    && a2enmod rewrite \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files
 COPY composer.json composer.lock ./
 
-# Install dependencies
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-scripts
 
-# Copy application code
 COPY . .
 
-# Create SQLite database file if it doesn't exist
-RUN mkdir -p database && \
-    touch database/database.sqlite && \
-    php artisan migrate --force || true
+RUN composer dump-autoload --optimize
 
-# Set permissions
-RUN chown -R www-data:www-data storage bootstrap/cache database && \
-    chmod -R 775 storage bootstrap/cache database
+RUN mkdir -p \
+    storage/app/public \
+    storage/framework/cache/data \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache \
+    database \
+    && touch database/database.sqlite
 
-# Configure Apache
+RUN chown -R www-data:www-data storage bootstrap/cache database \
+    && chmod -R 775 storage bootstrap/cache database
+
 RUN echo '<VirtualHost *:80>\n\
+    ServerName localhost\n\
     DocumentRoot /var/www/html/public\n\
     <Directory /var/www/html/public>\n\
+        Options -Indexes +FollowSymLinks\n\
         AllowOverride All\n\
         Require all granted\n\
     </Directory>\n\
+    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
-
-# Optimize Laravel
-RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
 
 EXPOSE 80
 

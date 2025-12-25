@@ -2,7 +2,7 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 
 const BLOG_LIST_URL = "https://beyondchats.com/blogs/";
-const BACKEND_API_URL = "http://127.0.0.1:8000/api/articles";
+const BACKEND_API_URL = "https://beyondchats-assignment-hd7d.onrender.com/api/articles";
 const TARGET_COUNT = 5;
 
 function isValidBlogTitle(title) {
