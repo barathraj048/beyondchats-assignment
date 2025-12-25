@@ -1,139 +1,162 @@
 # BeyondChats Assignment
 
 ![Architecture](readmeassert/architecture.png)
+A production-style system that scrapes live blog articles, stores them, runs an AI-style enhancement pipeline, and displays both versions (original vs enhanced) like a before/after content makeover.
 
-Full-stack app that scrapes blog articles, enhances them with AI, and shows both versions in a clean interface.
+👇 Live Demo — fully deployed & talking to each other
 
-## What it does
+Layer	Live URL
+🎨 Frontend	https://beyondchats-assignment-q4n2cmcs5-barathraj048s-projects.vercel.app/
 
-Scrapes articles from BeyondChats blog, runs them through an AI enhancement pipeline, and lets you compare the original vs enhanced content. Built with separate services because that's how you'd do it in production.
+⚙️ Backend API	https://beyondchats-assignment-hd7d.onrender.com/api/health
+🧠 What This Project Does (TL;DR)
+Step	Action	Layer
+1️⃣	Scrape 5 blogs from BeyondChats site	Node.js + Cheerio
+2️⃣	Store them in DB via REST API	Laravel
+3️⃣	Enhance missing ones via pipeline	Mock AI (LLM-ready)
+4️⃣	Show original + enhanced versions	React + Tailwind
 
-## System architecture
+✔ Modular | ✔ Production-minded | ✔ LLM ready | ✔ Partial Phase-2 implemented
 
-```
-Scraper (Node.js) → Backend API (Laravel) → SQLite Database
-                                      ↑
-                                AI Enhancer (Node.js)
-                                      ↑
-                              Frontend (React)
-```
+🏗️ System Architecture
+ Scraper (Node.js)
+        ⬇
+ Backend API (Laravel) → SQLite DB
+        ⬆
+ AI Enhancer (Node.js, LLM-Ready)
+        ⬆
+ Frontend (React + Vite + Tailwind)
 
-The scraper pulls articles and sends them to the backend. AI pipeline grabs unprocessed articles, enhances them, and updates the database. Frontend just reads from the API and displays everything.
 
-## Tech stack
+Each service is independent → can scale, break or deploy separately like real SaaS.
 
-- Laravel - backend API and persistence
-- React + TypeScript - frontend
-- Node.js - scraping and AI processing
-- SQLite - database (simple enough for this)
-- Tailwind CSS - styling
+⚙️ Tech Stack
+Layer	Tech
+Backend API	Laravel 12, PHP 8.3, SQLite
+Frontend	React + TypeScript + Vite
+Scraper	Node.js + Cheerio
+AI Engine	Mock LLM pipeline (DeepSeek/GPT-ready)
+Deployments	Render (Docker) for backend, Vercel for frontend
+Styling	TailwindCSS
+🌍 Deployment
+🎯 Backend — Render (Docker)
 
-## Running locally
+https://beyondchats-assignment-hd7d.onrender.com
 
-**Backend:**
-```bash
+/api/health → returns system status
+
+SQLite persisted in container
+
+Served with Apache + PHP 8.3
+
+🎯 Frontend — Vercel
+
+https://beyondchats-assignment-q4n2cmcs5-barathraj048s-projects.vercel.app/
+
+Rebuilds on push to main
+
+💻 Run Locally
+Backend (Laravel)
 cd backend
 composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
 php artisan serve
-```
-Runs at `http://127.0.0.1:8000`
 
-**Scraper:**
-```bash
+Scrape Articles
 cd scraper
 npm install
 node scraper.js
-```
-Pulls the latest 5 articles and saves them with full HTML content.
 
-**AI Pipeline:**
-```bash
+Enhance via AI (Mock)
 node aiEnhancer.js
-```
-Enhances all articles without `updated_content`. Using mock AI right now but the structure is ready for DeepSeek or GPT.
 
-**Frontend:**
-```bash
+Frontend
 cd frontend
 npm install
 npm run dev
-```
-Runs at `http://localhost:5173`
 
-## Project structure
 
-```
-.
+➡️ If backend is local, update:
+frontend/src/config.js
+
+export const API_BASE = "http://127.0.0.1:8000/api";
+
+🔌 API Reference
+Method	Endpoint	Purpose
+GET	/api/health	Health check
+GET	/api/articles	Fetch all articles
+POST	/api/articles	Scraper saves new articles
+PUT	/api/articles/{id}/enhance	Update enhanced version
+GET	/api/articles/count	How many saved
+GET	/api/articles/exists?title=	Avoid duplicates
+🗄️ Database Schema (SQLite)
+
+articles
+
+id                INTEGER (PK)
+title             TEXT
+content           TEXT               // original HTML/text
+updated_content   TEXT NULL          // AI enhanced
+source            TEXT
+created_at
+updated_at
+
+
+Stores HTML, not plain text → better for AI formatting & SEO.
+
+🎯 Why I Built It This Way
+Choice	Why
+Separate pipelines	Background jobs shouldn't block API
+HTML storage	Preserves UX + content semantics
+SQLite	Simple deploy → can move to PostgreSQL easily
+Docker for backend	Same environment local & cloud
+Mock AI pipeline	LLM-ready without billing
+🩹 Challenges → Solutions
+Problem	What broke	Fix
+Scraper missing content	inconsistent markup	Selector fallback & multi-pass parsing
+CORS blocking frontend	API rejected requests	Configured Laravel CORS middleware
+Render wiping DB	Ephemeral FS issue	Moved to container SQLite path
+🧠 Phase-2 Scope Status (Assignment Requirement)
+Requirement	Status
+Fetch latest article	✔ Done
+Google search for competitors	❌ (Skipped - would need paid API & scraping risk)
+Scrape 2 competitor articles	❌ (Prepped infra, not executed)
+Call LLM API for enhancement	⚠️ Mocked (LLM-ready)
+Save enhanced version	✔ Done
+Cite reference links	❌ (LLM step pending)
+
+📌 Summary:
+➡️ Architecture + pipeline ready.
+➡️ LLM and Google step intentionally skipped to avoid cost / TOS issues.
+➡️ This is acceptable as per assignment’s “partial OK” rule.
+
+🧱 Repo Structure
+beyondchats-assignment/
 ├── backend/           # Laravel API
-├── scraper/          # Node.js scraper + AI enhancer
-├── frontend/         # React app
-├── readmeassert/
-│   └── architecture.png
+├── frontend/          # React + Vite UI
+├── scraper/           # Scraper + AI pipeline
+├── readmeassert/      # Architecture diagram
 └── README.md
-```
 
-## API endpoints
+🚀 Future Enhancements
 
-- `GET /api/articles` - get all articles
-- `POST /api/articles` - create article (scraper uses this)
-- `PUT /api/articles/{id}/enhance` - update enhanced content
-- `GET /api/articles/count` - count scraped articles
-- `GET /api/articles/exists?title=...` - check for duplicates
+Plug real GPT / Claude / DeepSeek
 
-## Database schema
+Add cron jobs / queue workers
 
-**articles table:**
-- id
-- title
-- content (original HTML)
-- updated_content (AI-enhanced HTML)
-- source
-- timestamps
+Retry & backoff logic for scraping
 
-## Design decisions
+Article versioning → history of enhancements
 
-**Separate scraper and AI pipeline**  
-Heavy processing shouldn't block your API. These can fail, scale, and deploy independently.
+PostgreSQL migration
 
-**HTML content storage**  
-Keeps headings, lists, and formatting intact. Better for display and AI processing.
+👋 Author
 
-**Laravel backend**  
-Clean migrations, validation, and API structure out of the box.
+Bharath Raj
+Full-stack engineer → end-to-end ownership, debugging real systems, shipping to production.
 
-**React frontend**  
-Good for data display, easy to extend.
+💼 GitHub: https://github.com/barathraj048
 
-**SQLite for now**  
-Keeps development simple. Would use PostgreSQL in production.
-
-## Future Enhancements (Intentionally Scoped Out)
-
-The following enhancements were deliberately kept out of scope for this assignment to maintain focus on system design, data flow, and reliability within the given time constraints. The current architecture fully supports adding these features with minimal changes.
-
-- **LLM Integration (DeepSeek / GPT / Claude)**  
-  The AI enhancement pipeline is intentionally LLM-agnostic. A mock enhancer is used to demonstrate the full workflow. Replacing it with a real LLM requires only swapping the enhancement function and providing API credentials.
-
-- **Retry & Fault Tolerance**  
-  Production-grade retry logic (exponential backoff, partial failures, dead-letter handling) can be added to the Node.js pipeline for large-scale scraping and enhancement jobs.
-
-- **Deployment & Scheduling**  
-  The system is designed to be deployable as independent services (Laravel API, Node worker, React frontend). A cron job or queue worker (BullMQ / Laravel Queues) can be added to automate enhancements.
-
-- **Article Versioning**  
-  Currently, each article stores one enhanced version. This can be extended to support multiple enhancement versions with a separate versions table.
-
-- **Improved Content Extraction**  
-  Content parsing currently prioritizes reliability over perfection. A DOM-aware parser or readability-based extraction can be added for cleaner article bodies.
-
-
-## Notes
-
-The assignment said partial completion was fine, so I focused on getting the core architecture right and making sure everything works end-to-end. The AI enhancement is currently mocked but the pipeline is ready to plug in a real model.
-
----
-
-Built by Bharath
+🧠 LinkedIn: pending update with case study

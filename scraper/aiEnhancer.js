@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://127.0.0.1:8000/api/articles";
+const API_URL = "https://beyondchats-assignment-hd7d.onrender.com/api/articles";
 
 async function enhanceAllArticles() {
   console.log("Starting AI enhancement pipeline");
