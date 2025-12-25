@@ -9,3 +9,6 @@ Route::get('/articles/count', [ArticleController::class, 'count']);
 Route::get('/articles/exists', [ArticleController::class, 'exists']);
 
 Route::put('/articles/{id}/enhance', [ArticleController::class, 'updateContent']);
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok'], 200);
+});
